@@ -1,0 +1,199 @@
+import { Component, OnInit } from '@angular/core';
+//importación de las rutas
+import { Router } from '@angular/router';
+//importación de los servicios de la api
+import { TaskService } from 'src/app/services/task.service';
+//importacion de toaskcontroller
+import { ToastController } from '@ionic/angular';
+
+import { Camera, CameraResultType, CameraSource, Photo } from '@capacitor/camera';
+import { Filesystem, Directory } from '@capacitor/filesystem';
+import { HttpClient } from '@angular/common/http';
+
+import { UserPhoto } from './../../../interfaces/task';
+
+
+@Component({
+  selector: 'app-camaraescanersalida',
+  templateUrl: './camaraescanersalida.page.html',
+  styleUrls: ['./camaraescanersalida.page.scss'],
+})
+export class CamaraescanersalidaPage implements OnInit {
+
+  //llamdo de los datos url y name como dato tipo string
+  url: string;
+
+  nombre: string;
+
+  name: any;
+  role: string;
+  email: string;
+  telefono: any;
+  documento: any;
+  coincidencia: any;
+
+  //? Matriz que contendra uan referencia a cada foto.
+  public photos: UserPhoto[] = [];
+
+  constructor(
+    private router: Router,
+    private foto: TaskService,
+    //inyecta la importación de tosatcontroller
+    public toastController: ToastController,
+  ) {
+    //llamdo del nombre del localstorage
+    this.nombre=localStorage.getItem('name');
+  }
+
+  async errorl(mensaje, duracion) {
+    //función que hace el llamado de una alerta sobre un error
+    const toast = await this.toastController.create({
+      message: mensaje,
+      color: 'danger',
+      duration: duracion,
+    });
+    toast.present();
+  }
+
+  async chec(mensaje, duracion) {
+    //función que hace el llamado de una alerta sobre un error
+    const toast = await this.toastController.create({
+      message: mensaje,
+      color: 'success',
+      duration: duracion,
+    });
+    toast.present();
+  }
+
+  ngOnInit() {
+    //llamdo de la foto
+    this.traerfotol();
+  }
+
+  salir(){
+    //función de cerrar seción
+    localStorage.clear();
+    this.router.navigate(['login']);
+  }
+
+  traerfotol(){
+    //función de tarer la foto de los servicios de la api
+    const token = localStorage.getItem('token');
+    const idImgPerfil = localStorage.getItem('idImgPerfil');
+
+    console.log('Token -->',token);
+    console.log('imgPer -->',idImgPerfil);
+
+    this.foto.traerfotoperfil(token, idImgPerfil).subscribe((res: any)=>{
+      console.log(res.data.url);
+      this.url = res.data.url;
+    });
+
+  }
+
+  addPhotoToGallery() {
+    this.addNewToGallery();
+  }
+
+  //? método para tomar una fotografia. devuelve un blob
+  public async addNewToGallery() {
+    //? Tomar una foto
+    const capturedPhoto = await Camera.getPhoto({
+      resultType: CameraResultType.Uri,
+      source: CameraSource.Camera,
+      //?resolucion de la foto
+      quality: 100
+    });
+
+    //? Guarda la imagen y la agrega a la colección de fotos.
+    const savedImageFile = await this.savePicture(capturedPhoto);
+
+    //console.log(savedImageFile);
+
+    //? unshift Inserta nuevos elementos al comienzo de una matriz y devuelve la nueva longitud de la matriz.
+    this.photos.unshift(savedImageFile);
+
+  }
+
+  public async savePicture(photo: Photo) {
+    //? Convierta la foto al formato base64, requerido por la API del sistema de archivos para guardar
+    const base64Data = await this.readAsBase64(photo);
+
+    //? Escribir el archivo en el directorio de datos.
+    const fileName = new Date().getTime() + '.jpeg';
+    const savedFile = await Filesystem.writeFile({
+      path: fileName,
+      data: base64Data,
+      directory: Directory.Data,
+    });
+
+    //console.log('Chingada',savedFile);
+
+    const base64 = {
+      base: base64Data,
+    };
+
+    const token = localStorage.getItem('token');
+
+    this.foto.enviarfototempsal(token, base64).subscribe((res: any) => {
+      console.log(res);
+
+      this.name = res.dataUser.name;
+      this.documento = res.dataUser.documento;
+      this.telefono = res.dataUser.telefono;
+      this.email = res.dataUser.email;
+      this.role = res.dataUser.role[0];
+      this.coincidencia = res.datosazure[0].candidates[0].confidence;
+
+      //this.datosUser = res.datosUser;
+      //this.datosazure = res.datosazure;
+      const correcto = res.dataUser;
+
+      if(correcto === res.dataUser){
+      this.chec( res.dataUser.name, 4000);
+      }
+    },error => {
+    console.log(error);
+
+    const err = error.error.text;
+
+    if(err === 'ERROR DETECTANDO ROSTRO'){
+      this.errorl('DEBE APARECER UN ROSTRO PARA REGISTRAR LA SALIDA', 5000);
+    }else if(err === 'ERROR ROSTRO NO ENCONTRADO'){
+      this.errorl('ROSTRO NO ENCONTRADO EN LA BASE DE DATOS', 5000);
+    }
+
+    });
+
+    //? Use webPath para mostrar la nueva imagen en lugar de base64, ya que ya está cargada en la memoria.
+    return {
+      filepath: fileName,
+      webviewPath: photo.webPath
+    };
+  }
+
+  public async readAsBase64(photo: Photo) {
+    //? Obtiene la foto, léala como un blob y luego conviértala al formato base64
+    const response = await fetch(photo.webPath);
+    const blob = await response.blob();
+
+    //console.log('vaina loca',response);
+    //console.log('vaina loca X2', blob);
+
+    return await this.convertBlobToBase64(blob) as string;
+  }
+
+  //? Convierte la imagen a base64
+  public convertBlobToBase64 = (blob: Blob) => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload = () => {
+        resolve(reader.result);
+    };
+
+    reader.readAsDataURL(blob);
+
+    //console.log(reader);
+  });
+
+}

@@ -1,0 +1,44 @@
+<ion-toolbar color="light">
+  <ion-title>Verificación</ion-title>
+  <ion-buttons slot="start">
+    <ion-back-button defaultHref="/login"></ion-back-button>
+  </ion-buttons>
+</ion-toolbar>
+
+<ion-content class="fondo">
+  <ion-grid fixed>
+    <ion-row>
+      <ion-col size="1"></ion-col>
+      <ion-col size="10">
+        <ion-card class="lacard">
+          <ion-row>
+            <ion-col>
+              <ion-text color="primary">
+                <h2 class="ion-text-center">¡Gracias por Registarse!</h2>
+              </ion-text>
+              <br>
+              <h3>Hemos enviado un correo de verificacion </h3>
+              <br>
+              <h4>Por favor revise su correo electrónico y haga clic en el enlace para verificar su dirección de correo
+                electrónico.</h4>
+            </ion-col>
+          </ion-row>
+
+          <br>
+          <ion-row>
+            <ion-col>
+              <div class="ion-text-center">
+                <ion-button type="submit" color="primary" (click)="enviarcorreo()" >Reenviar correo electrónico</ion-button>
+                <br>
+                <a style="font-size: 15px;" [routerLink]="['/login']">Volver al inicio</a>
+              </div>
+            </ion-col>
+          </ion-row>
+          <br>
+          <br>
+        </ion-card>
+      </ion-col>
+      <ion-col size="1"></ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

@@ -1,0 +1,86 @@
+<ion-toolbar color="light">
+  <ion-row>
+    <ion-col size="2">
+      <ion-buttons>
+        <ion-menu-button color="dark" menu="first"></ion-menu-button>
+          <ion-button routerLink="/perfilseguridad" expand="block" fill="clear" shape="round" color="dark">
+          <h5>{{this.nombre}}</h5>
+        </ion-button>
+      </ion-buttons>
+    </ion-col>
+    <ion-col size="9">
+    </ion-col>
+    <ion-col size="1">
+      <button class="salida" (click)="salir()">
+        <ion-icon name="log-out-outline" color="dark"></ion-icon>
+      </button>
+    </ion-col>
+  </ion-row>
+</ion-toolbar>
+
+<ion-content class="fondo">
+  <ion-row class="ion-text-center">
+    <ion-col size="5"></ion-col>
+    <ion-col size="12" size-sm="2">
+      <ion-card class="lacard" color="primary">
+        <button (click)="addPhotoToGallery()">
+          <ion-icon id="icono" name="camera" class="elicono"></ion-icon>
+        </button>
+      </ion-card>
+    </ion-col>
+    <ion-col size="9"> </ion-col>
+  </ion-row>
+
+  <ion-row>
+    <ion-col size="1">
+      
+    </ion-col>
+    <ion-col size="12" size-md="3">
+      <ion-card class="lacard" style="width: 400px; height: 530px;">
+        <ion-card-content>
+
+          <ion-item class="ion-margin-vertical" >
+            <h4>Nombre: {{this.name}}</h4>
+          </ion-item>
+
+          <ion-item class="ion-margin-vertical">
+            <h4>Documento: {{this.documento}}</h4>
+          </ion-item>
+
+          <ion-item class="ion-margin-vertical">
+            <h4>Correo: {{this.email}}</h4>
+          </ion-item>
+
+          <ion-item class="ion-margin-vertical">
+            <h4>Teléfono: {{this.telefono}}</h4>
+          </ion-item>
+
+          <ion-item class="ion-margin-vertical">
+            <h4>Rol: {{this.role}}</h4>
+          </ion-item>
+
+          <ion-item class="ion-margin-vertical">
+            <h4>Coincidencia: {{this.coincidencia}}</h4>
+          </ion-item>
+        </ion-card-content>
+      </ion-card>
+    </ion-col>
+
+    <!-- ORganiza la foto tomada en la pag -->
+    <ion-grid>
+      <ion-col size="12" size-md="4" size-lg="3" *ngFor="let photo of photos; index as position">
+        <ion-card
+          style="background-color: rgba(221, 221, 221, 0.707); box-shadow: 10px 5px 5px rgba(0, 0, 0, 0.275); border-radius: 10px;">
+            <ion-card-content style="padding: 0;">
+              <ion-img style="object-fit: cover; height: 60vh; max-width: 100%; border-radius: 10px;"
+                [src]="photo.webviewPath" > </ion-img>
+            </ion-card-content>
+        </ion-card>
+      </ion-col>
+  </ion-grid>
+
+  <ion-col size="1"> 
+  </ion-col>
+  </ion-row>
+
+</ion-content>
